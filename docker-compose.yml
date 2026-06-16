@@ -1,0 +1,21 @@
+services:
+  syslog-server:
+    build: .
+    container_name: syslog-server
+    restart: unless-stopped
+    ports:
+      - "514:514/udp"
+      - "514:514/tcp"
+      - "80:80"
+    volumes:
+      - ${SYSLOG_DATA_PATH:-./data}:/mnt/syslog-data
+    environment:
+      - TIMEZONE=${TIMEZONE:-Europe/Paris}
+      - RETENTION_DAYS=${RETENTION_DAYS:-365}
+      - SERVER_HOSTNAME=${SERVER_HOSTNAME:-syslog-docker}
+      - MAX_DISK_PERCENT=${MAX_DISK_PERCENT:-90}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
