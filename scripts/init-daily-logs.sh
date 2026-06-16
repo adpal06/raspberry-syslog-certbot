@@ -3,7 +3,7 @@
 #############################################
 # Script d'initialisation des logs quotidiens
 # Crée la structure pour le jour actuel
-# SYIT Infrastructure
+# Novolink Infrastructure
 #############################################
 
 LOG_DIR="/mnt/syslog-data/current"
