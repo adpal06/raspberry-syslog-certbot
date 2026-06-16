@@ -365,7 +365,7 @@
                 <p style="color: #666; margin-bottom: 15px;">Pour que vos équipements apparaissent automatiquement, configurez-les pour envoyer leurs logs à :</p>
                 
                 <div class="code-block">
-                    Serveur Syslog : 192.168.10.105<br>
+                    Serveur Syslog : <span id="syslog-ip">...</span><br>
                     Port : 514<br>
                     Protocole : UDP ou TCP
                 </div>
@@ -700,18 +700,21 @@
                 console.error('Erreur:', error);
             }
         }
-        
+ // IP dynamique
+document.getElementById('syslog-ip').textContent = window.location.hostname;
+updateConfig();
         // Mettre à jour la configuration
         function updateConfig() {
-            const type = document.getElementById('config-type').value;
-            const configs = {
-                'fortigate': `config log syslogd setting<br>&nbsp;&nbsp;set status enable<br>&nbsp;&nbsp;set server "192.168.10.105"<br>&nbsp;&nbsp;set port 514<br>&nbsp;&nbsp;set facility local7<br>end`,
-                'cisco': `enable<br>configure terminal<br>logging host 192.168.10.105<br>logging trap informational<br>logging on<br>write memory`,
-                'unifi': `Interface Web UniFi Controller :<br>Settings → System → Remote Logging<br>→ Enable Remote Logging<br>→ Host: 192.168.10.105<br>→ Port: 514<br>→ Apply Changes`,
-                'mikrotik': `/system logging action<br>add name=remote-syslog target=remote remote=192.168.10.105<br><br>/system logging<br>add action=remote-syslog topics=info,warning,error`,
-            };
-            document.getElementById('config-code').innerHTML = configs[type];
-        }
+    const type = document.getElementById('config-type').value;
+    const ip = window.location.hostname;
+    const configs = {
+        'fortigate': `config log syslogd setting<br>&nbsp;&nbsp;set status enable<br>&nbsp;&nbsp;set server "${ip}"<br>&nbsp;&nbsp;set port 514<br>&nbsp;&nbsp;set facility local7<br>end`,
+        'cisco': `enable<br>configure terminal<br>logging host ${ip}<br>logging trap informational<br>logging on<br>write memory`,
+        'unifi': `Interface Web UniFi Controller :<br>Settings → System → Remote Logging<br>→ Enable Remote Logging<br>→ Host: ${ip}<br>→ Port: 514<br>→ Apply Changes`,
+        'mikrotik': `/system logging action<br>add name=remote-syslog target=remote remote=${ip}<br><br>/system logging<br>add action=remote-syslog topics=info,warning,error`,
+    };
+    document.getElementById('config-code').innerHTML = configs[type];
+}
         
         // Copier la configuration
         function copyConfig() {
