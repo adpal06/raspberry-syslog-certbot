@@ -2,7 +2,7 @@
 
 #############################################
 # Script de lancement Docker
-# Serveur Syslog centralise - SYIT
+# Serveur Syslog centralise - Novolink
 #############################################
 
 set -e
@@ -25,7 +25,7 @@ clear
 echo ""
 echo "========================================================"
 echo "   Serveur Syslog Centralise - Configuration Docker"
-echo "   SYIT Infrastructure"
+echo "   Novolink Infrastructure"
 echo "========================================================"
 echo ""
 
