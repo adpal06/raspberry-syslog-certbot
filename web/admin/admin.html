@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Syslog Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        h1 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        .back-link {
+            color: #e74c3c;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            background: white;
+            color: #666;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tab:hover {
+            background: #f8f9fa;
+        }
+        .tab.active {
+            background: #e74c3c;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e74c3c;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+        .btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #c0392b;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        .btn-success {
+            background: #27ae60;
+        }
+        .btn-success:hover {
+            background: #229954;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 968px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+            <a href="/index.html" class="back-link">← Retour au tableau de bord</a>
+            <h1>🔧 Panel Administrateur</h1>
+            <p style="color: #666; margin-top: 10px;">Gestion et monitoring avancé du serveur syslog</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="switchTab('devices')">📱 Équipements</button>
+            <button class="tab" onclick="switchTab('connections')">🔌 Connexions</button>
+            <button class="tab" onclick="switchTab('system')">⚙️ Système</button>
+        </div>
+        
+        <!-- TAB: Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Équipements détectés</h3>
+                    <div class="value" id="active-devices">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>Logs reçus aujourd'hui</h3>
+                    <div class="value" id="logs-today">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>Fichiers actifs</h3>
+                    <div class="value" id="active-connections">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <h3>Espace disque</h3>
+                    <div class="value" id="disk-space">--</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📡 Activité récente</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipement</th>
+                                <th>Dernier log</th>
+                                <th>Nombre de logs</th>
+                                <th>Taille</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-activity">
+                            <tr>
+                                <td colspan="4" class="empty-state">Chargement...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Équipements -->
+        <div id="devices" class="tab-content">
+            <div class="card">
+                <h2>📱 Équipements détectés automatiquement</h2>
+                <p style="color: #666; margin-bottom: 15px;">
+                    Les équipements qui envoient des logs au serveur syslog sont automatiquement détectés et listés ci-dessous.
+                </p>
+                
+                <div class="info-box">
+                    <strong>ℹ️ Détection automatique</strong><br>
+                    • Les équipements sont détectés dès qu'ils envoient des logs<br>
+                    • La date du dernier log est mise à jour en temps réel<br>
+                    • Pour ajouter un nouvel équipement, configurez-le pour envoyer ses logs à l'IP du serveur syslog
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom d'hôte</th>
+                                <th>Type</th>
+                                <th>Dernier log reçu</th>
+                                <th>Logs aujourd'hui</th>
+                                <th>Taille fichier</th>
+                            </tr>
+                        </thead>
+                        <tbody id="devices-list">
+                            <tr>
+                                <td colspan="5" class="empty-state">Chargement...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button class="btn" style="margin-top: 20px;" onclick="loadDevices()">🔄 Rafraîchir</button>
+            </div>
+            
+            <div class="card">
+                <h2>📋 Configuration rapide</h2>
+                <p style="color: #666; margin-bottom: 15px;">Pour que vos équipements apparaissent automatiquement, configurez-les pour envoyer leurs logs à :</p>
+                
+                <div class="code-block">
+                    Serveur Syslog : 192.168.10.105<br>
+                    Port : 514<br>
+                    Protocole : UDP ou TCP
+                </div>
+                
+                <div class="form-group">
+                    <label>Exemple de configuration par type</label>
+                    <select id="config-type" onchange="updateConfig()">
+                        <option value="fortigate">FortiGate</option>
+                        <option value="cisco">Cisco</option>
+                        <option value="unifi">Ubiquiti/UniFi</option>
+                        <option value="mikrotik">MikroTik</option>
+                        <option value="livebox">Livebox Orange</option>
+                    </select>
+                </div>
+                
+                <div class="code-block" id="config-code">
+                    config log syslogd setting<br>
+                    &nbsp;&nbsp;set status enable<br>
+                    &nbsp;&nbsp;set server "192.168.10.105"<br>
+                    &nbsp;&nbsp;set port 514<br>
+                    end
+                </div>
+                
+                <button class="btn-secondary btn" onclick="copyConfig()">📋 Copier la configuration</button>
+            </div>
+        </div>
+        
+        <!-- TAB: Connexions -->
+        <div id="connections" class="tab-content">
+            <div class="card">
+                <h2>🔌 Équipements actifs</h2>
+                <p style="color: #666; margin-bottom: 15px;">Liste des équipements qui ont envoyé des logs aujourd'hui</p>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom d'hôte</th>
+                                <th>Port</th>
+                                <th>Protocole</th>
+                                <th>Dernier log</th>
+                                <th>Logs reçus</th>
+                            </tr>
+                        </thead>
+                        <tbody id="connections-list">
+                            <tr>
+                                <td colspan="5" class="empty-state">Chargement des connexions...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button class="btn" style="margin-top: 20px;" onclick="refreshConnections()">🔄 Rafraîchir</button>
+            </div>
+            
+            <div class="card">
+                <h2>📊 Statistiques</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total équipements</h3>
+                        <div class="value" id="total-connections">0</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <h3>Logs total</h3>
+                        <div class="value" id="total-logs">0</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <h3>Taille totale</h3>
+                        <div class="value" id="total-size">0</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <h3>Logs/heure (moy)</h3>
+                        <div class="value" id="logs-per-hour">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Système -->
+        <div id="system" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <h2>💾 Stockage</h2>
+                    <table>
+                        <tr>
+                            <td><strong>Capacité totale</strong></td>
+                            <td id="sys-total">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Utilisé</strong></td>
+                            <td id="sys-used">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Disponible</strong></td>
+                            <td id="sys-free">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Utilisation</strong></td>
+                            <td id="sys-percent">--</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="card">
+                    <h2>🔧 Services</h2>
+                    <table>
+                        <tr>
+                            <td><strong>rsyslog</strong></td>
+                            <td><span class="status online">● En ligne</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>nginx</strong></td>
+                            <td><span class="status online">● En ligne</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Archivage quotidien</strong></td>
+                            <td><span class="status online">● Actif (00:30)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Détection équipements</strong></td>
+                            <td><span class="status online">● Actif (2 min)</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>⚙️ Actions système</h2>
+                <div class="action-buttons">
+                    <button class="btn" onclick="window.location.href='/admin/archives/'">📂 Gérer les archives</button>
+                    <button class="btn" onclick="window.location.href='/admin/current/'">📝 Voir logs en cours</button>
+                    <button class="btn" onclick="window.location.href='/admin/downloads/'">📦 Gérer téléchargements</button>
+                    <button class="btn btn-secondary" onclick="window.open('/downloads-index.html', '_blank')">💾 Archives téléchargeables</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📚 Documentation rapide</h2>
+                <div class="info-box">
+                    <strong>Commandes utiles :</strong><br>
+                    • Vérifier rsyslog : <code>sudo systemctl status rsyslog</code><br>
+                    • Logs d'archivage : <code>tail -f /var/log/syslog-archiver.log</code><br>
+                    • Espace disque : <code>df -h /mnt/syslog-data</code><br>
+                    • Port 514 : <code>sudo netstat -tulpn | grep 514</code><br>
+                    • Logs du jour : <code>ls -la /mnt/syslog-data/current/$(date +%Y/%m/%d)/</code>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Gestion des onglets
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'connections') {
+                loadConnections();
+            } else if (tabName === 'devices') {
+                loadDevices();
+            } else if (tabName === 'system') {
+                loadSystemInfo();
+            } else if (tabName === 'dashboard') {
+                loadDashboard();
+            }
+        }
+        
+        // Charger les équipements
+        async function loadDevices() {
+            try {
+                const response = await fetch('/active-devices.json');
+                const devices = await response.json();
+                
+                const tbody = document.getElementById('devices-list');
+                
+                if (devices.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <div>
+                                    <p>Aucun équipement détecté</p>
+                                    <p style="font-size: 12px; margin-top: 10px;">Les équipements apparaîtront automatiquement dès qu'ils enverront des logs</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById('active-devices').textContent = '0';
+                    document.getElementById('active-connections').textContent = '0';
+                    return;
+                }
+                
+                tbody.innerHTML = devices.map(device => `
+                    <tr>
+                        <td><strong>${device.hostname}</strong></td>
+                        <td>🔍 Auto-détecté</td>
+                        <td>${device.last_modified || device.last_log_content || 'Inconnu'}</td>
+                        <td>${device.log_count.toLocaleString()}</td>
+                        <td>${device.file_size}</td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('active-devices').textContent = devices.length;
+                document.getElementById('active-connections').textContent = devices.length;
+                
+                const totalLogs = devices.reduce((sum, d) => sum + d.log_count, 0);
+                document.getElementById('logs-today').textContent = totalLogs.toLocaleString();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('devices-list').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <p style="color: #e74c3c;">Erreur de chargement</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Charger les connexions
+        async function loadConnections() {
+            try {
+                const response = await fetch('/active-devices.json');
+                const devices = await response.json();
+                
+                const tbody = document.getElementById('connections-list');
+                
+                if (devices.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <p>Aucun équipement actif</p>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML = devices.map(device => `
+                        <tr>
+                            <td><strong>${device.hostname}</strong></td>
+                            <td>514</td>
+                            <td>UDP/TCP</td>
+                            <td>${device.last_modified || device.last_log_content || 'Inconnu'}</td>
+                            <td>${device.log_count.toLocaleString()}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                document.getElementById('total-connections').textContent = devices.length;
+                
+                const totalLogs = devices.reduce((sum, d) => sum + d.log_count, 0);
+                document.getElementById('total-logs').textContent = totalLogs.toLocaleString();
+                
+                let totalSizeKB = 0;
+                devices.forEach(d => {
+                    const size = d.file_size.replace(/[KMG]/g, '');
+                    const unit = d.file_size.match(/[KMG]/);
+                    if (unit) {
+                        if (unit[0] === 'M') totalSizeKB += parseFloat(size) * 1024;
+                        else if (unit[0] === 'G') totalSizeKB += parseFloat(size) * 1024 * 1024;
+                        else totalSizeKB += parseFloat(size);
+                    }
+                });
+                const totalSizeMB = (totalSizeKB / 1024).toFixed(1);
+                document.getElementById('total-size').textContent = totalSizeMB + ' MB';
+                
+                const logsPerHour = Math.round(totalLogs / 24);
+                document.getElementById('logs-per-hour').textContent = logsPerHour.toLocaleString();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+        
+        function refreshConnections() {
+            loadConnections();
+        }
+        
+        // Charger les infos système
+        async function loadSystemInfo() {
+            try {
+                const response = await fetch('/api/disk-stats');
+                const data = await response.json();
+                
+                document.getElementById('sys-total').textContent = data.total_gb + ' GB';
+                document.getElementById('sys-used').textContent = data.used_gb + ' GB';
+                document.getElementById('sys-free').textContent = data.free_gb + ' GB';
+                document.getElementById('sys-percent').textContent = data.usage_percent + '%';
+                document.getElementById('disk-space').textContent = data.usage_percent + '%';
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+        
+        // Charger le dashboard
+        async function loadDashboard() {
+            loadSystemInfo();
+            loadDevices();
+            
+            try {
+                const response = await fetch('/active-devices.json');
+                const devices = await response.json();
+                
+                const tbody = document.getElementById('recent-activity');
+                
+                if (devices.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="empty-state">Aucune activité récente</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = devices.slice(0, 5).map(device => `
+                    <tr>
+                        <td><strong>${device.hostname}</strong></td>
+                        <td>${device.last_modified || device.last_log_content || 'Inconnu'}</td>
+                        <td>${device.log_count.toLocaleString()} logs</td>
+                        <td>${device.file_size}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+        
+        // Mettre à jour la configuration
+        function updateConfig() {
+            const type = document.getElementById('config-type').value;
+            const configs = {
+                'fortigate': `config log syslogd setting<br>&nbsp;&nbsp;set status enable<br>&nbsp;&nbsp;set server "192.168.10.105"<br>&nbsp;&nbsp;set port 514<br>&nbsp;&nbsp;set facility local7<br>end`,
+                'cisco': `enable<br>configure terminal<br>logging host 192.168.10.105<br>logging trap informational<br>logging on<br>write memory`,
+                'unifi': `Interface Web UniFi Controller :<br>Settings → System → Remote Logging<br>→ Enable Remote Logging<br>→ Host: 192.168.10.105<br>→ Port: 514<br>→ Apply Changes`,
+                'mikrotik': `/system logging action<br>add name=remote-syslog target=remote remote=192.168.10.105<br><br>/system logging<br>add action=remote-syslog topics=info,warning,error`,
+            };
+            document.getElementById('config-code').innerHTML = configs[type];
+        }
+        
+        // Copier la configuration
+        function copyConfig() {
+            const code = document.getElementById('config-code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Configuration copiée !');
+            }).catch(err => {
+                alert('❌ Erreur lors de la copie');
+            });
+        }
+        
+        // Fonction de déconnexion
+        function logout() {
+            // Méthode 1 : Rediriger vers une URL avec des credentials invalides pour forcer la réauthentification
+            // Cela force le navigateur à oublier les credentials HTTP Basic Auth
+            const logoutUrl = window.location.origin + '/logout';
+
+            // Essayer de se déconnecter en envoyant des credentials invalides
+            fetch(logoutUrl, {
+                method: 'GET',
+                headers: new Headers({
+                    'Authorization': 'Basic ' + btoa('logout:logout')
+                })
+            }).then(() => {
+                // Rediriger vers la page de login
+                window.location.href = '/';
+            }).catch(() => {
+                // En cas d'erreur, forcer la réauthentification en rechargeant avec une URL différente
+                window.location.href = window.location.origin + '/';
+            });
+        }
+
+        // Initialisation
+        loadDashboard();
+
+        // Rafraîchir automatiquement
+        setInterval(() => {
+            const activeTab = document.querySelector('.tab.active').textContent;
+            if (activeTab.includes('Dashboard')) {
+                loadDashboard();
+            } else if (activeTab.includes('Équipements')) {
+                loadDevices();
+            } else if (activeTab.includes('Connexions')) {
+                loadConnections();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
