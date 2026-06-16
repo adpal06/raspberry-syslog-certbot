@@ -3,7 +3,7 @@
 #############################################
 # Script de diagnostic du serveur Syslog
 # Vérifie l'installation et identifie les problèmes
-# SYIT Infrastructure
+# Novolink Infrastructure
 #############################################
 
 # Couleurs
@@ -38,7 +38,7 @@ print_info() {
 
 echo ""
 echo "╔════════════════════════════════════════════════╗"
-echo "║   Diagnostic du Serveur Syslog - SYIT         ║"
+echo "║   Diagnostic du Serveur Syslog - Novolink      ║"
 echo "╚════════════════════════════════════════════════╝"
 
 # ========================================
