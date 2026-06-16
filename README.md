@@ -1,3 +1,8 @@
+### Installation
+
+Pour installer et configurer le serveur syslog, exécutez les commandes suivantes dans votre terminal :
+
+```bash
 # 1. Récupérer le projet
 git clone https://github.com/tatdorian/syslog-server.git
 
