@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-LABEL maintainer="SYIT Infrastructure"
+LABEL maintainer="Novolink"
 LABEL description="Serveur Syslog centralise avec interface web"
 
 # Eviter les prompts interactifs
